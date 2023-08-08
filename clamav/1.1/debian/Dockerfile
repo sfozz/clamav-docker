@@ -57,10 +57,18 @@ RUN apt update && apt install -y \
           -DDATABASE_DIRECTORY="/var/lib/clamav" \
           -DENABLE_CLAMONACC=OFF \
           -DENABLE_EXAMPLES=OFF \
-          -DENABLE_JSON_SHARED=ON \
+          -DENABLE_JSON_SHARED=OFF \
           -DENABLE_MAN_PAGES=OFF \
-          -DENABLE_MILTER=ON \
-          -DENABLE_STATIC_LIB=OFF \
+          -DENABLE_MILTER=OFF \
+          -DENABLE_STATIC_LIB=ON \
+          -DENABLE_SHARED_LIB=OFF \
+          -DJSONC_LIBRARY="/usr/lib/x86_64-linux-gnu/libjson-c.a" \
+          -DBZIP2_LIBRARY_RELEASE="/usr/lib/x86_64-linux-gnu/libbz2.a" \
+          -DOPENSSL_CRYPTO_LIBRARY="/usr/lib/x86_64-linux-gnu/libcrypto.a" \
+          -DOPENSSL_SSL_LIBRARY="/usr/lib/x86_64-linux-gnu/libssl.a" \
+          -DZLIB_LIBRARY="/usr/lib/x86_64-linux-gnu/libssl.a" \
+          -DPCRE2_LIBRARY="/usr/lib/x86_64-linux-gnu/libpcre2-8.a" \
+          -DZLIB_LIBRARY="/usr/lib/x86_64-linux-gnu/libz.a" \
     && \
     make DESTDIR="/clamav" -j$(($(nproc) - 1)) install \
     && \
@@ -83,15 +91,7 @@ RUN apt update && apt install -y \
         -e "s|^\#\(UpdateLogFile\) .*|\1 /var/log/clamav/freshclam.log|" \
         -e "s|^\#\(NotifyClamd\).*|\1 /etc/clamav/clamd.conf|" \
         -e "s|^\#\(ScriptedUpdates\).*|\1 yes|" \
-        "/clamav/etc/clamav/freshclam.conf.sample" > "/clamav/etc/clamav/freshclam.conf" && \
-    sed -e "s|^\(Example\)|\# \1|" \
-        -e "s|.*\(PidFile\) .*|\1 /tmp/clamav-milter.pid|" \
-        -e "s|.*\(MilterSocket\) .*|\1 inet:7357|" \
-        -e "s|.*\(User\) .*|\1 clamav|" \
-        -e "s|^\#\(LogFile\) .*|\1 /var/log/clamav/milter.log|" \
-        -e "s|^\#\(LogTime\).*|\1 yes|" \
-        -e "s|.*\(\ClamdSocket\) .*|\1 unix:/tmp/clamd.sock|" \
-        "/clamav/etc/clamav/clamav-milter.conf.sample" > "/clamav/etc/clamav/clamav-milter.conf" || \
+        "/clamav/etc/clamav/freshclam.conf.sample" > "/clamav/etc/clamav/freshclam.conf" || \
     exit 1 \
     && \
     ctest -V
